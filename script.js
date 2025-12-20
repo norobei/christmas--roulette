@@ -9,10 +9,24 @@ const roleList = [
   { name: 'santa', desc: 'サンタクロース', msg: 'サンタになるってなんだろう？' }
 ]
 /**
+ * LED点灯パターン
+ * @type {{led1: boolean, led2: boolean, led3: boolean}[]}
+ */
+const targetLEDMapList = [
+  { led1: true, led2: false, led3: false },
+  { led1: false, led2: true, led3: false },
+  { led1: false, led2: false, led3: true }
+]
+/**
  * ルーレットの択のインデックス
  * @type {number}
  */
 let roulette = 0
+/**
+ * LED点灯パターンのインデックス
+ * @type {number}
+ */
+let led = 0
 /**
  * setIntervalのid
  * @type {number}
@@ -31,19 +45,52 @@ async function delay(ms) {
 }
 
 /**
+ * 配列の次のインデックスを取得する
+ * @param {unknown[]} targetList 対象の配列
+ * @param {number} currentIndex 現在のインデックス
+ */
+function getNextIndex(targetList, currentIndex) {
+  if (currentIndex < targetList.length - 1) {
+    return currentIndex + 1
+  } else {
+    return 0
+  }
+}
+
+/**
+ * LEDを点灯させるAPIを呼び出す
+ * @param {{led1: boolean, led2: boolean, led3: boolean}} targetLEDMap 点灯対象のLEDのマップ
+ * @returns {void}
+ */
+function fetchLEDOn(targetLEDMap) {
+  const endpoint = '/patlite'
+  const queryLED = 
+    `${targetLEDMap.led1 ? '1' : '0'}${targetLEDMap.led2 ? '1' : '0'}${targetLEDMap.led3 ? '1' : '0'}00`
+  const query =
+    `led=${queryLED}&sound=40`
+  fetch(`${endpoint}?${query}`).then((response) => {
+    if (!response.ok) {
+      console.error('LED点灯失敗', 'status:' + response.status)
+    }
+  }).catch((error) => {
+    console.error('LED点灯失敗', error)
+  })
+}
+
+/**
  * ルーレット開始
  */
 function startRoulette() {
+  roulette = 0
+  led = 0
   document.querySelector('.start-btn').classList.add('none')
   document.querySelector('.stop-btn').classList.remove('none')
   document.querySelector('h1').textContent = ''
   intervalId = setInterval(() => {
     document.querySelector('img').src = `images/${roleList[roulette].name}.png`
-    if (roulette < roleList.length - 1) {
-      roulette += 1
-    } else {
-      roulette = 0
-    }
+    fetchLEDOn(targetLEDMapList[led])
+    led = getNextIndex(targetLEDMapList, led)
+    roulette = getNextIndex(roleList, roulette)
   }, 300)
 }
 
@@ -58,12 +105,8 @@ function stopRoulette() {
   //ランダムで生成される
   let XmasRandomNum = 4 + Math.floor(Math.random() * 3)
   let stopRoulette = setInterval(async () => {
-    if (roulette < roleList.length - 1) {
-      roulette += 1
-    } else {
-      roulette = 0
-    }
     document.querySelector('img').src = `images/${roleList[roulette].name}.png`
+    fetchLEDOn(targetLEDMapList[led])
     XmasRandomNum -= 1
     if (XmasRandomNum == 0) {
       clearInterval(stopRoulette)
@@ -74,6 +117,8 @@ function stopRoulette() {
       document.querySelector('.wait-btn').classList.add('none')
       document.querySelector('.restart-btn').classList.remove('none')
     }
+    roulette = getNextIndex(roleList, roulette)
+    led = getNextIndex(targetLEDMapList, led)
   }, 700)
 }
 
