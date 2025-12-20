@@ -6,22 +6,22 @@ const roleList = [
   {
     name: 'boy', desc: 'プレゼントを待つ少年', msg: '今年はサンタさんくるかなぁ?',
     url: 'https://norobei.github.io/christmas-roulette-web/boy_waiting_for_present.html',
-    soundCh: 33 // TODO 結果に応じたチャンネル番号を設定
+    soundCh: 37
   },
   {
     name: 'police', desc: 'クリスマス警察', msg: '悪い夢を取り締まる任務を与えよう',
     url: 'https://norobei.github.io/christmas-roulette-web/keisatsu.html',
-    soundCh: 33 // TODO 結果に応じたチャンネル番号を設定
+    soundCh: 36
   },
   {
     name: 'reindeer', desc: 'トナカイ', msg: 'お前の鼻が役に立つのさ',
     url: 'https://norobei.github.io/christmas-roulette-web/reindeer.html',
-    soundCh: 33 // TODO 結果に応じたチャンネル番号を設定
+    soundCh: 35
   },
   {
     name: 'santa', desc: 'サンタクロース', msg: 'メリークリスマス！',
     url: 'https://norobei.github.io/christmas-roulette-web/santa.html',
-    soundCh: 33 // TODO 結果に応じたチャンネル番号を設定
+    soundCh: 31
   }
 ]
 /**
