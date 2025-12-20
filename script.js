@@ -1,12 +1,28 @@
 /** 
  * キャラクターリスト
- * @type {{name: string, desc: string, msg: string}}
+ * @type {{name: string, desc: string, msg: string, url: string, soundCh: number}}
  */
 const roleList = [
-  { name: 'boy', desc: 'プレゼントを待つ少年', msg: '今年はサンタさんくるかなぁ?', url: 'https://norobei.github.io/christmas-roulette-web/boy_waiting_for_present.html' },
-  { name: 'police', desc: 'クリスマス警察', msg: '悪い夢を取り締まる任務を与えよう', url: 'https://norobei.github.io/christmas-roulette-web/keisatsu.html' },
-  { name: 'reindeer', desc: 'トナカイ', msg: 'お前の鼻が役に立つのさ', url: 'https://norobei.github.io/christmas-roulette-web/reindeer.html' },
-  { name: 'santa', desc: 'サンタクロース', msg: 'メリークリスマス！', url: 'https://norobei.github.io/christmas-roulette-web/santa.html' }
+  {
+    name: 'boy', desc: 'プレゼントを待つ少年', msg: '今年はサンタさんくるかなぁ?',
+    url: 'https://norobei.github.io/christmas-roulette-web/boy_waiting_for_present.html',
+    soundCh: 33 // TODO 結果に応じたチャンネル番号を設定
+  },
+  {
+    name: 'police', desc: 'クリスマス警察', msg: '悪い夢を取り締まる任務を与えよう',
+    url: 'https://norobei.github.io/christmas-roulette-web/keisatsu.html',
+    soundCh: 33 // TODO 結果に応じたチャンネル番号を設定
+  },
+  {
+    name: 'reindeer', desc: 'トナカイ', msg: 'お前の鼻が役に立つのさ',
+    url: 'https://norobei.github.io/christmas-roulette-web/reindeer.html',
+    soundCh: 33 // TODO 結果に応じたチャンネル番号を設定
+  },
+  {
+    name: 'santa', desc: 'サンタクロース', msg: 'メリークリスマス！',
+    url: 'https://norobei.github.io/christmas-roulette-web/santa.html',
+    soundCh: 33 // TODO 結果に応じたチャンネル番号を設定
+  }
 ]
 /**
  * LED点灯パターン
@@ -21,17 +37,37 @@ const targetLEDMapList = [
  * ルーレットの択のインデックス
  * @type {number}
  */
-let roulette = 0
+let roulette
 /**
  * LED点灯パターンのインデックス
  * @type {number}
  */
-let led = 0
+let led
 /**
  * setIntervalのid
  * @type {number}
  */
 let intervalId
+
+// 初期化処理
+initialize()
+
+/**
+ * 初期化処理
+ */
+function initialize() {
+  roulette = 0
+  led = 0
+
+  //スタートボタン押下
+  document.querySelector('.start-btn').addEventListener('click', startRoulette)
+  //ストップボタン押下
+  document.querySelector('.stop-btn').addEventListener('click', stopRoulette)
+
+  // ジングルベルを再生するAPIを呼び出す
+  const jingleBellCh = '33'
+  fetchSoundPlay(jingleBellCh)
+}
 
 /**
  * 指定した時間(ms)待機する
@@ -58,6 +94,26 @@ function getNextIndex(targetList, currentIndex) {
 }
 
 /**
+ * ジングルベルを再生するAPIを呼び出す
+ * @param {number} パトライトのサウンドチャンネル
+ * @returns {void}
+ */
+function fetchSoundPlay(soundCh) {
+  const endpoint = '/patlite'
+  const queryLED = '00000'
+  const querySound = String(soundCh)
+  const query =
+    `led=${queryLED}&sound=${querySound}`
+  fetch(`${endpoint}?${query}`).then((response) => {
+    if (!response.ok) {
+      console.error('ジングルベル再生失敗', 'status:' + response.status)
+    }
+  }).catch((error) => {
+    console.error('ジングルベル再生失敗', error)
+  })
+}
+
+/**
  * LEDを点灯させるAPIを呼び出す
  * @param {{led1: boolean, led2: boolean, led3: boolean}} targetLEDMap 点灯対象のLEDのマップ
  * @returns {void}
@@ -66,8 +122,9 @@ function fetchLEDOn(targetLEDMap) {
   const endpoint = '/patlite'
   const queryLED =
     `${targetLEDMap.led1 ? '1' : '0'}${targetLEDMap.led2 ? '1' : '0'}${targetLEDMap.led3 ? '1' : '0'}00`
+  const querySound = '40'
   const query =
-    `led=${queryLED}&sound=40`
+    `led=${queryLED}&sound=${querySound}`
   fetch(`${endpoint}?${query}`).then((response) => {
     if (!response.ok) {
       console.error('LED点灯失敗', 'status:' + response.status)
@@ -118,14 +175,9 @@ function stopRoulette() {
       document.querySelector('.restart-btn').classList.remove('none')
       document.getElementById('image_link').setAttribute('href', roleList[roulette].url)
       document.querySelector('#click_label').textContent = '＼クリック！／'
+      fetchSoundPlay(roleList[roulette].soundCh)
     }
     roulette = getNextIndex(roleList, roulette)
     led = getNextIndex(targetLEDMapList, led)
   }, 700)
 }
-
-//スタートボタン押下
-document.querySelector('.start-btn').addEventListener('click', startRoulette)
-
-//ストップボタン押下
-document.querySelector('.stop-btn').addEventListener('click', stopRoulette)
