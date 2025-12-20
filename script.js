@@ -3,10 +3,10 @@
  * @type {{name: string, desc: string, msg: string}}
  */
 const roleList = [
-  { name: 'boy', desc: 'プレゼントを待つ少年', msg: '今年はサンタさんくるかなぁ?' },
-  { name: 'police', desc: 'クリスマス警察', msg: '悪い夢を取り締まる任務を与えよう' },
-  { name: 'reindeer', desc: 'トナカイ', msg: 'お前の鼻が役に立つのさ' },
-  { name: 'santa', desc: 'サンタクロース', msg: 'サンタになるってなんだろう？' }
+  { name: 'boy', desc: 'プレゼントを待つ少年', msg: '今年はサンタさんくるかなぁ?', url: 'https://norobei.github.io/christmas-roulette-web/boy_waiting_for_present.html' },
+  { name: 'police', desc: 'クリスマス警察', msg: '悪い夢を取り締まる任務を与えよう', url: 'https://norobei.github.io/christmas-roulette-web/keisatsu.html' },
+  { name: 'reindeer', desc: 'トナカイ', msg: 'お前の鼻が役に立つのさ', url: 'https://norobei.github.io/christmas-roulette-web/reindeer.html' },
+  { name: 'santa', desc: 'サンタクロース', msg: 'メリークリスマス！', url: 'https://norobei.github.io/christmas-roulette-web/santa.html' }
 ]
 /**
  * LED点灯パターン
@@ -64,7 +64,7 @@ function getNextIndex(targetList, currentIndex) {
  */
 function fetchLEDOn(targetLEDMap) {
   const endpoint = '/patlite'
-  const queryLED = 
+  const queryLED =
     `${targetLEDMap.led1 ? '1' : '0'}${targetLEDMap.led2 ? '1' : '0'}${targetLEDMap.led3 ? '1' : '0'}00`
   const query =
     `led=${queryLED}&sound=40`
@@ -116,6 +116,8 @@ function stopRoulette() {
       await delay(2000)
       document.querySelector('.wait-btn').classList.add('none')
       document.querySelector('.restart-btn').classList.remove('none')
+      document.getElementById('image_link').setAttribute('href', roleList[roulette].url)
+      document.querySelector('#click_label').textContent = '＼クリック！／'
     }
     roulette = getNextIndex(roleList, roulette)
     led = getNextIndex(targetLEDMapList, led)
