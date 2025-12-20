@@ -15,26 +15,34 @@ const server = http.createServer((req, res) => {
   /* ===============================
      ① パトライト制御用 API
      =============================== */
-  if (req.url.startsWith('/patlite')) {
-    const url = new URL(req.url, `http://${req.headers.host}`);
-    const led = url.searchParams.get('led') ?? '11100';
-    console.log(`http://192.168.12.201/api/control?led=${led}`)
+if (req.url.startsWith('/patlite')) {
+  const url = new URL(req.url, `http://${req.headers.host}`);
 
-    http.get(`http://192.168.12.201/api/control?led=${led}`, () => {
-      // 制御できればOK。GUIやHTMLは返さない
-      res.writeHead(204, {
-        'Access-Control-Allow-Origin': '*'
-      });
-      res.end();
-    }).on('error', (err) => {
-      res.writeHead(500, {
-        'Content-Type': 'text/plain'
-      });
-      res.end(err.message);
-    });
+  const led = url.searchParams.get('led') ?? '11100';
+  const sound = url.searchParams.get('sound') ?? null;
 
-    return;
+  // クエリ文字列を組み立てる
+  let controlUrl = `http://192.168.12.201/api/control?led=${led}`;
+  if (sound !== null) {
+    controlUrl += `&sound=${sound}`;
   }
+
+  console.log(controlUrl); // ログ確認
+
+  http.get(controlUrl, () => {
+    res.writeHead(204, {
+      'Access-Control-Allow-Origin': '*'
+    });
+    res.end();
+  }).on('error', (err) => {
+    res.writeHead(500, {
+      'Content-Type': 'text/plain'
+    });
+    res.end(err.message);
+  });
+
+  return;
+}
 
   /* ===============================
      ② 静的ファイル配信
